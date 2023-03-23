@@ -1,15 +1,21 @@
 import java.sql.*;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-
         // Const
         String URL = "jdbc:mysql://localhost:3306/nations_db";
         String USER = "root";
         String PASSWORD = "root";
 
+        Scanner scan = new Scanner(System.in);
+
         System.out.println("-- SQL query in java --");
-        System.out.println("-----------------------");
+        System.out.println("-----------------------\n");
+
+        // User input
+        System.out.print("-> Inserire la nazione da cercare o parte del suo nome: ");
+        String userInput = scan.nextLine();
 
         // Connection object
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
@@ -20,11 +26,16 @@ public class Main {
                     from countries c
                     join regions r on r.region_id  = c.region_id
                     join continents cont on cont.continent_id = r.continent_id
+                    where c.name like ?
                     order by c.name;
                     """;
             // Prepared statement from query
             try (PreparedStatement ps = connection.prepareStatement(query)) {
-                //Execute query
+                // Parameters
+                userInput = "%" + userInput + "%";
+                ps.setString(1, userInput);
+
+                // Execute query
                 try (ResultSet rs = ps.executeQuery()) {
                     // Result iterations
                     while (rs.next()) {
